@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVI Architecture Pattern - Android</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #66ea71 0%, #4ba26f 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: none;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide h1 {
+            font-size: 3em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide h2 {
+            font-size: 2.5em;
+            color: #34495e;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .slide h3 {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin: 20px 0 15px 0;
+        }
+
+        .slide p, .slide li {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .slide ul {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .slide li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .slide li::before {
+            content: "→";
+            color: #667eea;
+            font-weight: bold;
+            position: absolute;
+            left: -25px;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .mvi-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .mvi-component {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 150px;
+            border: 3px solid #667eea;
+        }
+
+        .mvi-component h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.4em;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .pros {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+
+        .cons {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.9);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>MVI Architecture Pattern</h1>
+            <div style="text-align: center; margin: 50px 0;">
+                <h2 style="border: none; color: #667eea;">Model-View-Intent</h2>
+                <p style="font-size: 1.8em; color: #555; margin-top: 30px;">Modern Android Architecture Pattern</p>
+                <p style="font-size: 1.4em; color: #777; margin-top: 40px;">Unidirectional Data Flow • Reactive Programming • State Management</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is MVI? -->
+        <div class="slide">
+            <h2>What is MVI?</h2>
+            <p><span class="highlight">Model-View-Intent (MVI)</span> is an architectural pattern that emphasizes <strong>unidirectional data flow</strong> and <strong>immutable state</strong>.</p>
+            
+            <div class="mvi-diagram">
+                <div class="mvi-component">
+                    <h4>Intent</h4>
+                    <p>User actions</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="mvi-component">
+                    <h4>Model</h4>
+                    <p>Business logic</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="mvi-component">
+                    <h4>View</h4>
+                    <p>UI rendering</p>
+                </div>
+            </div>
+
+            <h3>Key Principles:</h3>
+            <ul>
+                <li>Single source of truth</li>
+                <li>Immutable state objects</li>
+                <li>Unidirectional data flow</li>
+                <li>Reactive streams</li>
+                <li>Predictable state changes</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: Core Components -->
+        <div class="slide">
+            <h2>Core Components</h2>
+            
+            <h3>🎯 Intent</h3>
+            <p>Represents user actions or system events that trigger state changes.</p>
+            <div class="code-block">
+<pre>
+sealed class UserIntent {
+    object LoadUsers : UserIntent()
+    data class SelectUser(val userId: String) : UserIntent()
+    data class SearchUsers(val query: String) : UserIntent()
+}</pre></div>
+
+            <h3>📦 Model</h3>
+            <p>Represents the application state at any given time.</p>
+            <div class="code-block">
+<pre>
+data class UserState(
+    val isLoading: Boolean = false,
+    val users: List&lt;User&gt; = emptyList(),
+    val selectedUser: User? = null,
+    val error: String? = null
+)</pre></div>
+
+            <h3>👁️ View</h3>
+            <p>Observes the model and renders the UI based on the current state.</p>
+        </div>
+
+        <!-- Slide 4: Data Flow -->
+        <div class="slide">
+            <h2>Unidirectional Data Flow</h2>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <div class="mvi-diagram" style="flex-direction: column; gap: 30px;">
+                    <img src="images/mvi_comp.webp" style="width: 900px; height: 400px;">
+                </div>
+            </div>
+
+            <p style="text-align: center; font-size: 1.2em; color: #667eea; font-weight: 600;">
+                This cycle ensures predictable and testable state management
+            </p>
+        </div>
+
+        <!-- Slide 5: Implementation Example -->
+        <div class="slide">
+            <h2>Implementation Example</h2>
+            
+            <h3>ViewModel with MVI</h3>
+            <div class="code-block">
+<pre>
+class UserViewModel : ViewModel() {
+    private val _state = MutableLiveData(UserState())
+    val state: LiveData&lt;UserState&gt; = _state
+    
+    fun handleIntent(intent: UserIntent) {
+        when (intent) {
+            is UserIntent.LoadUsers -> loadUsers()
+            is UserIntent.SelectUser -> selectUser(intent.userId)
+            is UserIntent.SearchUsers -> searchUsers(intent.query)
+        }
+    }
+    
+    private fun loadUsers() {
+        _state.value = _state.value?.copy(isLoading = true)
+        // Load users from repository
+        viewModelScope.launch {
+            try {
+                val users = repository.getUsers()
+                _state.value = _state.value?.copy(
+                    isLoading = false,
+                    users = users
+                )
+            } catch (e: Exception) {
+                _state.value = _state.value?.copy(
+                    isLoading = false,
+                    error = e.message
+                )
+            }
+        }
+    }
+}</pre></div>
+        </div>
+
+        <!-- Slide 6: View Implementation -->
+        <!-- <div class="slide">
+            <h2>View Implementation</h2>
+            
+            <h3>Activity/Fragment</h3>
+            <div class="code-block">
+<pre>
+class UserActivity : AppCompatActivity() {
+    private lateinit var viewModel: UserViewModel
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_user)
+        
+        viewModel = ViewModelProvider(this)[UserViewModel::class.java]
+        
+        // Observe state changes
+        viewModel.state.observe(this) { state ->
+            render(state)
+        }
+        
+        // Send intents
+        searchButton.setOnClickListener {
+            val query = searchEditText.text.toString()
+            viewModel.handleIntent(UserIntent.SearchUsers(query))
+        }
+        
+        // Load initial data
+        viewModel.handleIntent(UserIntent.LoadUsers)
+    }
+    
+    private fun render(state: UserState) {
+        progressBar.isVisible = state.isLoading
+        userRecyclerView.adapter = UserAdapter(state.users) { user ->
+            viewModel.handleIntent(UserIntent.SelectUser(user.id))
+        }
+        errorTextView.text = state.error
+        errorTextView.isVisible = state.error != null
+    }
+}</pre></div>
+        </div> -->
+
+        <!-- Slide 7: Benefits -->
+        <div class="slide">
+            <h2>Benefits of MVI</h2>
+            
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3 style="color: #28a745;">✅ Advantages</h3>
+                    <ul>
+                        <li><strong>Predictable:</strong> State changes follow a clear pattern</li>
+                        <li><strong>Testable:</strong> Easy to unit test with pure functions</li>
+                        <li><strong>Debuggable:</strong> Clear state transitions</li>
+                        <li><strong>Immutable:</strong> No unexpected state mutations</li>
+                        <li><strong>Reactive:</strong> Works well with RxJava/Coroutines</li>
+                        <li><strong>Scalable:</strong> Handles complex state management</li>
+                    </ul>
+                </div>
+                
+                <div class="cons">
+                    <h3 style="color: #dc3545;">⚠️ Considerations</h3>
+                    <ul>
+                        <li><strong>Learning curve:</strong> Requires understanding reactive programming</li>
+                        <li><strong>Boilerplate:</strong> More code for simple cases</li>
+                        <li><strong>Memory usage:</strong> State objects can be large</li>
+                        <li><strong>Complexity:</strong> Can be overkill for simple apps</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: MVI vs Other Patterns -->
+        <div class="slide">
+            <h2>MVI vs Other Patterns</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>MVI</th>
+                        <th>MVP</th>
+                        <th>MVVM</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Flow</strong></td>
+                        <td>Unidirectional</td>
+                        <td>Bidirectional</td>
+                        <td>Bidirectional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Management</strong></td>
+                        <td>Centralized, Immutable</td>
+                        <td>Distributed</td>
+                        <td>Observable fields</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Testing</strong></td>
+                        <td>Excellent</td>
+                        <td>Good</td>
+                        <td>Good</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Complexity</strong></td>
+                        <td>Medium-High</td>
+                        <td>Medium</td>
+                        <td>Low-Medium</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Learning Curve</strong></td>
+                        <td>Steep</td>
+                        <td>Moderate</td>
+                        <td>Gentle</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 9: Best Practices -->
+        <div class="slide">
+            <h2>Best Practices</h2>
+            
+            <h3>🎯 State Design</h3>
+            <ul>
+                <li>Keep state objects <strong>immutable</strong></li>
+                <li>Use <strong>data classes</strong> for easy copying</li>
+                <li>Avoid nested mutable objects</li>
+                <li>Keep state flat when possible</li>
+            </ul>
+
+            <h3>🔄 Intent Handling</h3>
+            <ul>
+                <li>Use <strong>sealed classes</strong> for type safety</li>
+                <li>Keep intents <strong>simple and focused</strong></li>
+                <li>Avoid complex objects in intents</li>
+                <li>Handle all intent types explicitly</li>
+            </ul>
+
+            <h3>🏗️ Architecture</h3>
+            <ul>
+                <li>Use <strong>Repository pattern</strong> for data access</li>
+                <li>Implement <strong>proper error handling</strong></li>
+                <li>Consider <strong>middleware</strong> for cross-cutting concerns</li>
+                <li>Use <strong>coroutines</strong> for async operations</li>
+            </ul>
+        </div>
+
+        <!-- Slide 10: When to Use MVI -->
+        <div class="slide">
+            <h2>When to Use MVI?</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px;">
+                <div>
+                    <h3 style="color: #28a745;">✅ Good fit for:</h3>
+                    <ul>
+                        <li>Complex state management</li>
+                        <li>Multiple data sources</li>
+                        <li>Real-time updates</li>
+                        <li>Collaborative features</li>
+                        <li>Apps with heavy user interaction</li>
+                        <li>Team projects requiring predictability</li>
+                        <li>Apps requiring extensive testing</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 style="color: #dc3545;">❌ Consider alternatives for:</h3>
+                    <ul>
+                        <li>Simple CRUD applications</li>
+                        <li>Prototypes or MVPs</li>
+                        <li>Small teams new to reactive programming</li>
+                        <li>Apps with minimal state</li>
+                        <li>Read-only content apps</li>
+                        <li>Quick one-off projects</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <h3 style="color: #667eea;">💡 Recommendation</h3>
+                <p>Start with MVVM for most Android projects. Consider MVI when you need predictable state management for complex, interactive applications.</p>
+            </div>
+        </div>
+
+        <!-- Slide 11: Conclusion -->
+        <div class="slide">
+            <h2>Conclusion</h2>
+            
+            <div style="text-align: center; margin: 50px 0;">
+                <div class="mvi-component" style="display: inline-block; margin: 20px;">
+                    <h3 style="color: #667eea;">MVI Architecture</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        <strong>Predictable</strong> • <strong>Testable</strong> • <strong>Scalable</strong>
+                    </p>
+                </div>
+            </div>
+
+            <h3>Key Takeaways:</h3>
+            <ul>
+                <li>MVI provides <span class="highlight">unidirectional data flow</span> and <span class="highlight">immutable state</span></li>
+                <li>Excellent for complex applications with heavy state management</li>
+                <li>Requires understanding of reactive programming concepts</li>
+                <li>Best suited for teams that value predictability and testability</li>
+                <li>Consider your project complexity before adopting</li>
+            </ul>
+
+            <div style="text-align: center; margin-top: 50px;">
+                <p style="font-size: 1.6em; color: #667eea; font-weight: 600;">
+                    Thank you for your attention!
+                </p>
+                <p style="font-size: 1.2em; color: #777; margin-top: 20px;">
+                    Questions & Discussion
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            if (direction === 1 && currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            } else if (direction === -1 && currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                changeSlide(1);
+            } else if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

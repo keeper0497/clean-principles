@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test-Driven Development (TDD)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 60px;
+            display: none;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .slide.active {
+            display: block;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #34495e;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            color: #2980b9;
+            margin: 25px 0 15px 0;
+        }
+
+        p, li {
+            font-size: 1.3em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        ul {
+            margin-left: 30px;
+            margin-bottom: 25px;
+        }
+
+        li {
+            margin-bottom: 12px;
+            padding-left: 10px;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 5px solid #3498db;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .tdd-cycle {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .cycle-step {
+            text-align: center;
+            padding: 25px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .cycle-step:hover {
+            transform: scale(1.1);
+        }
+
+        .red { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .green { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+        .blue { background: linear-gradient(45deg, #3498db, #2980b9); }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .pros, .cons {
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pros {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 5px solid #28a745;
+        }
+
+        .cons {
+            background: linear-gradient(135deg, #f8d7da, #f1aeb5);
+            border-left: 5px solid #dc3545;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+            
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 2em; }
+            .pros-cons { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Test-Driven Development</h1>
+            <div class="highlight">
+                <h3>TDD: Writing Tests First, Code Second</h3>
+                <p>A software development methodology that emphasizes writing tests before implementing functionality.</p>
+            </div>
+            <div style="text-align: center; margin-top: 50px;">
+                <h3>Key Principle</h3>
+                <p style="font-size: 1.5em; color: #2980b9; font-weight: bold;">"Red → Green → Refactor"</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: What is TDD? -->
+        <div class="slide">
+            <h2>What is Test-Driven Development?</h2>
+            <p>Test-Driven Development (TDD) is a software development approach where you write tests before writing the actual code. It's a disciplined practice that helps ensure code quality and maintainability.</p>
+            
+            <h3>Core Philosophy</h3>
+            <ul>
+                <li>Tests drive the design of your code</li>
+                <li>Only write code to make failing tests pass</li>
+                <li>Keep tests simple and focused</li>
+                <li>Refactor frequently to improve code quality</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>TDD is not just about testing – it's about design and documentation!</strong>
+            </div>
+        </div>
+
+        <!-- Slide 3: TDD Cycle -->
+        <div class="slide">
+            <h2>The TDD Cycle</h2>
+            <div class="tdd-cycle">
+                <div class="cycle-step red">
+                    <div>
+                        <div>RED</div>
+                        <small>Write a failing test</small>
+                    </div>
+                </div>
+                <div class="cycle-step green">
+                    <div>
+                        <div>GREEN</div>
+                        <small>Make it pass</small>
+                    </div>
+                </div>
+                <div class="cycle-step blue">
+                    <div>
+                        <div>REFACTOR</div>
+                        <small>Improve the code</small>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Step-by-Step Process</h3>
+            <ul>
+                <li><strong>Red:</strong> Write a test that fails (because functionality doesn't exist yet)</li>
+                <li><strong>Green:</strong> Write the minimum code needed to make the test pass</li>
+                <li><strong>Refactor:</strong> Improve the code while keeping all tests passing</li>
+                <li><strong>Repeat:</strong> Continue the cycle for each new feature</li>
+            </ul>
+        </div>
+
+        <!-- Slide 4: Benefits -->
+        <div class="slide">
+            <h2>Benefits of TDD</h2>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>Advantages</h3>
+                    <ul>
+                        <li>Better code design and architecture</li>
+                        <li>Higher code coverage</li>
+                        <li>Fewer bugs in production</li>
+                        <li>Living documentation</li>
+                        <li>Easier refactoring</li>
+                        <li>Faster debugging</li>
+                        <li>Increased developer confidence</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>Challenges</h3>
+                    <ul>
+                        <li>Initial learning curve</li>
+                        <li>More code to write and maintain</li>
+                        <li>Slower initial development</li>
+                        <li>Requires discipline and commitment</li>
+                        <li>Can be challenging for UI testing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: TDD Example -->
+        <div class="slide">
+            <h2>TDD Example: Calculator Function</h2>
+            
+            <h3>Step 1: Write a failing test (RED)</h3>
+            <div class="code-block">
+<pre>
+test('should add two numbers', () => {
+    expect(add(2, 3)).toBe(5);
+});
+// This test fails because 'add' function doesn't exist
+</pre>
+            </div>
+
+            <h3>Step 2: Write minimal code to pass (GREEN)</h3>
+            <div class="code-block">
+<pre>
+function add(a, b) {
+    return a + b;
+}
+// Test now passes!
+</pre>
+            </div>
+
+            <h3>Step 3: Refactor if needed (REFACTOR)</h3>
+            <div class="code-block">
+<pre>
+function add(a, b) {
+    // Add input validation
+    if (typeof a !== 'number' || typeof b !== 'number') {
+        throw new Error('Both arguments must be numbers');
+    }
+    return a + b;
+}
+</pre>
+            </div>
+        </div>
+
+        <!-- Slide 6: Types of Tests -->
+        <div class="slide">
+            <h2>Types of Tests in TDD</h2>
+            
+            <h3>Unit Tests</h3>
+            <ul>
+                <li>Test individual functions or methods</li>
+                <li>Fast execution and isolated</li>
+                <li>Form the foundation of TDD</li>
+            </ul>
+
+            <h3>Integration Tests</h3>
+            <ul>
+                <li>Test interaction between components</li>
+                <li>Verify system behavior</li>
+                <li>More complex but essential</li>
+            </ul>
+
+            <h3>Acceptance Tests</h3>
+            <ul>
+                <li>Test from user's perspective</li>
+                <li>Validate business requirements</li>
+                <li>Often written in natural language</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Test Pyramid:</strong> Many unit tests, some integration tests, few acceptance tests
+            </div>
+        </div>
+
+        <!-- Slide 7: Best Practices -->
+        <div class="slide">
+            <h2>TDD Best Practices</h2>
+            
+            <h3>Writing Good Tests</h3>
+            <ul>
+                <li><strong>FIRST Principles:</strong> Fast, Independent, Repeatable, Self-validating, Timely</li>
+                <li><strong>Arrange-Act-Assert:</strong> Clear test structure</li>
+                <li><strong>One assertion per test:</strong> Keep tests focused</li>
+                <li><strong>Descriptive names:</strong> Tests should tell a story</li>
+            </ul>
+
+            <h3>TDD Workflow Tips</h3>
+            <ul>
+                <li>Start with the simplest test case</li>
+                <li>Write the minimum code to pass</li>
+                <li>Don't skip the refactor step</li>
+                <li>Run tests frequently</li>
+                <li>Keep the cycle short (minutes, not hours)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 8: Common Mistakes -->
+        <div class="slide">
+            <h2>Common TDD Mistakes</h2>
+            
+            <h3>Testing Anti-Patterns</h3>
+            <ul>
+                <li><strong>Testing implementation details:</strong> Focus on behavior, not internals</li>
+                <li><strong>Writing tests after code:</strong> Defeats the purpose of TDD</li>
+                <li><strong>Skipping refactoring:</strong> Leads to technical debt</li>
+                <li><strong>Over-testing:</strong> Too many tests can slow development</li>
+            </ul>
+
+            <h3>How to Avoid These Mistakes</h3>
+            <ul>
+                <li>Think about the API before implementation</li>
+                <li>Test behavior, not implementation</li>
+                <li>Keep tests simple and readable</li>
+                <li>Remove duplicate tests</li>
+                <li>Regular code reviews for test quality</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: TDD vs Traditional Development -->
+        <div class="slide">
+            <h2>TDD vs Traditional Development</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Traditional Development</th>
+                        <th>Test-Driven Development</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>When tests are written</td>
+                        <td>After implementation</td>
+                        <td>Before implementation</td>
+                    </tr>
+                    <tr>
+                        <td>Design approach</td>
+                        <td>Design then code</td>
+                        <td>Tests drive design</td>
+                    </tr>
+                    <tr>
+                        <td>Code coverage</td>
+                        <td>Often incomplete</td>
+                        <td>High by default</td>
+                    </tr>
+                    <tr>
+                        <td>Debugging time</td>
+                        <td>More time spent debugging</td>
+                        <td>Less debugging needed</td>
+                    </tr>
+                    <tr>
+                        <td>Documentation</td>
+                        <td>Separate documentation</td>
+                        <td>Tests as documentation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 10: Getting Started -->
+        <div class="slide">
+            <h2>Getting Started with TDD</h2>
+            
+            <!-- <h3>Tools and Frameworks</h3>
+            <ul>
+                <li><strong>JavaScript:</strong> Jest, Mocha, Jasmine</li>
+                <li><strong>Python:</strong> pytest, unittest</li>
+                <li><strong>Java:</strong> JUnit, TestNG</li>
+                <li><strong>C#:</strong> NUnit, MSTest</li>
+            </ul> -->
+
+            <h3>Implementation Steps</h3>
+            <ul>
+                <li>Choose a testing framework</li>
+                <li>Start with simple functions</li>
+                <li>Practice the Red-Green-Refactor cycle</li>
+                <li>Gradually apply to larger features</li>
+                <li>Get team buy-in and training</li>
+            </ul>
+
+            <div class="highlight">
+                <h3>Remember</h3>
+                <p><strong>TDD is a skill that improves with practice. Start small, be consistent, and embrace the mindset shift!</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = index + 1;
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                currentSlideIndex = newIndex;
+                showSlide(currentSlideIndex);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

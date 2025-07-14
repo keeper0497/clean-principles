@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOLID Principles Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            padding: 60px;
+            background: white;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.5s ease-in-out;
+        }
+        
+        .slide.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide h1 {
+            font-size: 3em;
+            margin-bottom: 40px;
+            color: #2c3e50;
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .slide h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #34495e;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+        
+        .slide h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #2980b9;
+        }
+        
+        .slide p, .slide li {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #444;
+        }
+        
+        .slide ul {
+            margin-left: 30px;
+        }
+        
+        .slide li {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .slide li::before {
+            content: "→";
+            color: #3498db;
+            font-weight: bold;
+            position: absolute;
+            left: -25px;
+        }
+        
+        .principle-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .example-box {
+            background: #f1f8ff;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #0366d6;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        pre{
+            color: #d4d4d4;
+            font-size: large;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            z-index: 1000;
+        }
+        
+        .title-slide {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .title-slide h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .title-slide .subtitle {
+            font-size: 1.5em;
+            color: #7f8c8d;
+            margin-bottom: 40px;
+        }
+        
+        .acronym {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+        
+        .acronym-item {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .acronym-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .acronym-item .letter {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .acronym-item .word {
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-top: 10px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .benefit-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: perspective(1000px) rotateX(0deg) translateY(-5px);
+        }
+        
+        .highlight {
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .scroll {
+            /* background-color: #fdfdfd; */
+            /* /* width: 600px; */
+            height: 200px; 
+            overflow-x: hidden;
+            overflow-y: auto;
+            /* text-align: center; */
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+        </div>
+        
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <h1>SOLID Principles</h1>
+            <p class="subtitle">Building Better Object-Oriented Software</p>
+            <div class="acronym">
+                <div class="acronym-item">
+                    <div class="letter">S</div>
+                    <div class="word">Single Responsibility</div>
+                </div>
+                <div class="acronym-item">
+                    <div class="letter">O</div>
+                    <div class="word">Open/Closed</div>
+                </div>
+                <div class="acronym-item">
+                    <div class="letter">L</div>
+                    <div class="word">Liskov Substitution</div>
+                </div>
+                <div class="acronym-item">
+                    <div class="letter">I</div>
+                    <div class="word">Interface Segregation</div>
+                </div>
+                <div class="acronym-item">
+                    <div class="letter">D</div>
+                    <div class="word">Dependency Inversion</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 2: Overview -->
+        <div class="slide">
+            <h2>What are SOLID Principles?</h2>
+            <div class="principle-card">
+                <p><strong>SOLID</strong> is a set of five design principles that help developers create more maintainable, flexible, and robust object-oriented software.</p>
+            </div>
+            <h3>Why Use SOLID Principles?</h3>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h4>🔧 Maintainability</h4>
+                    <p>Code is easier to modify and extend</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🧪 Testability</h4>
+                    <p>Components can be tested in isolation</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔄 Flexibility</h4>
+                    <p>Adapt to changing requirements</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🎯 Reduced Coupling</h4>
+                    <p>Components are less dependent on each other</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 3: Single Responsibility Principle -->
+        <div class="slide">
+            <h2><span class="highlight">S</span> - Single Responsibility Principle</h2>
+            <div class="principle-card">
+                <h3>Definition</h3>
+                <p>"A class should have only one reason to change"</p>
+                <p>Each class should have only one job or responsibility.</p>
+            </div>
+            
+            
+            <div class="example-box">
+                <h3>❌ Bad Example</h3>
+                <div class="scroll">
+                    <div class="code-block">    
+                        <pre>
+                        class User {
+                            constructor(name, email) {
+                                this.name = name;
+                                this.email = email;
+                            }
+                            
+                            save() { /* Save to database */ }
+                            sendEmail() { /* Send email */ }
+                            validateEmail() { /* Validate email */ }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>✅ Good Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        class User {
+                            constructor(name, email) {
+                                this.name = name;
+                                this.email = email;
+                            }
+                        }
+
+                        class UserRepository {
+                            save(user) { /* Save to database */ }
+                        }
+
+                        class EmailService {
+                            sendEmail(user) { /* Send email */ }
+                            validateEmail(email) { /* Validate email */ }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 4: Open/Closed Principle -->
+        <div class="slide">
+            <h2><span class="highlight">O</span> - Open/Closed Principle</h2>
+            <div class="principle-card">
+                <h3>Definition</h3>
+                <p>"Software entities should be open for extension, but closed for modification"</p>
+                <p>You should be able to add new functionality without changing existing code.</p>
+            </div>
+            
+            <div class="example-box">
+                <h3>❌ Bad Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        class PaymentProcessor {
+                            processPayment(type, amount) {
+                                if (type === 'credit') {
+                                    // Process credit card
+                                } else if (type === 'paypal') {
+                                    // Process PayPal
+                                }
+                                // Need to modify this class for new payment types
+                            }
+                        }
+                        </pre>  
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>✅ Good Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        interface PaymentMethod {
+                            process(amount: number): void;
+                        }
+
+                        class CreditCardPayment implements PaymentMethod {
+                            process(amount) { /* Process credit card */ }
+                        }
+
+                        class PayPalPayment implements PaymentMethod {
+                            process(amount) { /* Process PayPal */ }
+                        }
+
+                        class PaymentProcessor {
+                            processPayment(method: PaymentMethod, amount: number) {
+                                method.process(amount);
+                            }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 5: Liskov Substitution Principle -->
+        <div class="slide">
+            <h2><span class="highlight">L</span> - Liskov Substitution Principle</h2>
+            <div class="principle-card">
+                <h3>Definition</h3>
+                <p>"Objects of a superclass should be replaceable with objects of a subclass without breaking the application"</p>
+                <p>Subclasses must be substitutable for their base classes.</p>
+            </div>
+            
+            <div class="example-box">
+                <h3>❌ Bad Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        class Bird {
+                            fly() { /* Flying logic */ }
+                        }
+
+                        class Penguin extends Bird {
+                            fly() {
+                                throw new Error("Penguins can't fly!");
+                            }
+                        }
+
+                        // This breaks LSP - Penguin can't substitute Bird
+                        function makeBirdFly(bird) {
+                            bird.fly(); // Will throw error for Penguin
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>✅ Good Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        class Bird {
+                            move() { /* Basic movement */ }
+                        }
+
+                        class FlyingBird extends Bird {
+                            fly() { /* Flying logic */ }
+                            move() { this.fly(); }
+                        }
+
+                        class WalkingBird extends Bird {
+                            walk() { /* Walking logic */ }
+                            move() { this.walk(); }
+                        }
+
+                        class Eagle extends FlyingBird {}
+                        class Penguin extends WalkingBird {}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 6: Interface Segregation Principle -->
+        <div class="slide">
+            <h2><span class="highlight">I</span> - Interface Segregation Principle</h2>
+            <div class="principle-card">
+                <h3>Definition</h3>
+                <p>"Clients should not be forced to depend on interfaces they don't use"</p>
+                <p>Create specific, focused interfaces rather than large, general-purpose ones.</p>
+            </div>
+            
+            <div class="example-box">
+                <h3>❌ Bad Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        interface Worker {
+                            work(): void;
+                            eat(): void;
+                            sleep(): void;
+                        }
+
+                        class Robot implements Worker {
+                            work() { /* Work */ }
+                            eat() { /* Robots don't eat! */ }
+                            sleep() { /* Robots don't sleep! */ }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>✅ Good Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        interface Workable {
+                            work(): void;
+                        }
+
+                        interface Eatable {
+                            eat(): void;
+                        }
+
+                        interface Sleepable {
+                            sleep(): void;
+                        }
+
+                        class Human implements Workable, Eatable, Sleepable {
+                            work() { /* Work */ }
+                            eat() { /* Eat */ }
+                            sleep() { /* Sleep */ }
+                        }
+
+                        class Robot implements Workable {
+                            work() { /* Work */ }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 7: Dependency Inversion Principle -->
+        <div class="slide">
+            <h2><span class="highlight">D</span> - Dependency Inversion Principle</h2>
+            <div class="principle-card">
+                <h3>Definition</h3>
+                <p>"High-level modules should not depend on low-level modules. Both should depend on abstractions."</p>
+                <p>Depend on abstractions, not on concrete implementations.</p>
+            </div>
+            
+            <div class="example-box">
+                <h3>❌ Bad Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        class EmailSender {
+                            send(message) { /* Send email */ }
+                        }
+
+                        class NotificationService {
+                            constructor() {
+                                this.emailSender = new EmailSender(); // Direct dependency
+                            }
+                            
+                            notify(message) {
+                                this.emailSender.send(message);
+                            }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h3>✅ Good Example</h3>
+                <div class="scroll">
+                    <div class="code-block">
+                        <pre>
+                        interface NotificationSender {
+                            send(message: string): void;
+                        }
+
+                        class EmailSender implements NotificationSender {
+                            send(message) { /* Send email */ }
+                        }
+
+                        class SMSSender implements NotificationSender {
+                            send(message) { /* Send SMS */ }
+                        }
+
+                        class NotificationService {
+                            constructor(private sender: NotificationSender) {}
+                            
+                            notify(message) {
+                                this.sender.send(message);
+                            }
+                        }
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 8: Benefits Summary -->
+        <div class="slide">
+            <h2>Benefits of Following SOLID Principles</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h4>🔧 Maintainability</h4>
+                    <p>Code is easier to understand, modify, and debug</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🧪 Testability</h4>
+                    <p>Components can be tested in isolation with mocks</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔄 Flexibility</h4>
+                    <p>Easy to adapt to changing requirements</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>♻️ Reusability</h4>
+                    <p>Components can be reused in different contexts</p>
+                </div>
+            </div>
+            
+            <div class="principle-card">
+                <h3>Key Takeaways</h3>
+                <ul>
+                    <li>Each class should have a single, well-defined responsibility</li>
+                    <li>Design for extension without modification</li>
+                    <li>Ensure subclasses can replace their parent classes</li>
+                    <li>Keep interfaces small and focused</li>
+                    <li>Depend on abstractions, not concrete implementations</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Slide 9: Conclusion -->
+        <div class="slide">
+            <h1>Thank You!</h1>
+            <div class="principle-card">
+                <h2>Remember: SOLID Principles Lead to SOLID Code</h2>
+                <p style="font-size: 1.5em; text-align: center; margin-top: 30px;">
+                    Clean • Maintainable • Flexible • Testable
+                </p>
+            </div>
+            
+            <!-- <div class="example-box">
+                <h3>Questions for Discussion</h3>
+                <ul>
+                    <li>Which SOLID principle do you find most challenging to implement?</li>
+                    <li>Can you think of examples in your current codebase that violate these principles?</li>
+                    <li>How would you refactor existing code to follow SOLID principles?</li>
+                </ul>
+            </div> -->
+        </div>
+    </div>
+    
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">Previous</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next</button>
+    </div>
+    
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            if (direction === 1 && currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            } else if (direction === -1 && currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                changeSlide(1);
+            } else if (event.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Architecture Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .presentation-container {
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            padding: 60px;
+            min-height: 600px;
+            position: relative;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+        }
+
+        .slide h2 {
+            font-size: 2em;
+            color: #34495e;
+            margin-bottom: 25px;
+            border-left: 5px solid #e74c3c;
+            padding-left: 20px;
+        }
+
+        .slide h3 {
+            font-size: 1.5em;
+            color: #2980b9;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+
+        .slide p, .slide li {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .slide ul {
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        .slide li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .slide li::marker {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .architecture-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .circle-diagram {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .circle-layer {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .layer-1 {
+            width: 120px;
+            height: 120px;
+            background: #e74c3c;
+            font-size: 14px;
+            z-index: 4;
+        }
+
+        .layer-2 {
+            width: 200px;
+            height: 200px;
+            background: #f39c12;
+            font-size: 13px;
+            z-index: 3;
+        }
+
+        .layer-3 {
+            width: 280px;
+            height: 280px;
+            background: #27ae60;
+            font-size: 12px;
+            z-index: 2;
+        }
+
+        .layer-4 {
+            width: 360px;
+            height: 360px;
+            background: #3498db;
+            font-size: 11px;
+            z-index: 1;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .benefit-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .principles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .principle-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .principle-box:hover {
+            border-color: #3498db;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: #34495e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .code-example {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: #f1c40f;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .dependency-arrow {
+            text-align: center;
+            font-size: 2em;
+            color: #e74c3c;
+            margin: 20px 0;
+        }
+
+        .title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title-slide h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            border: none;
+            color: white;
+        }
+
+        .title-slide p {
+            font-size: 1.3em;
+            color: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">10</span>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active title-slide">
+            <h1>Clean Architecture</h1>
+            <p>Building Maintainable and Testable Software</p>
+            <div style="margin-top: 40px; font-size: 1.1em;">
+                <!-- <p>By Robert C. Martin (Uncle Bob)</p> -->
+            </div>
+        </div>
+
+        <!-- Slide 2: What is Clean Architecture? -->
+        <div class="slide">
+            <h1>What is Clean Architecture?</h1>
+            <div style="margin-top: 40px;">
+                <p><strong>Clean Architecture</strong> is a software design philosophy that emphasizes:</p>
+                <ul>
+                    <li><strong>Separation of Concerns</strong> - Each layer has a specific responsibility</li>
+                    <li><strong>Dependency Management</strong> - Dependencies point inward toward business logic</li>
+                    <li><strong>Independence</strong> - Business rules are isolated from external concerns</li>
+                    <li><strong>Testability</strong> - Easy to test components in isolation</li>
+                </ul>
+                <div style="background: #e8f4f8; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                    <p><strong>Goal:</strong> Create systems that are maintainable, flexible, and independent of frameworks, databases, and external services.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Dependency Rule -->
+        <div class="slide">
+            <h1>The Dependency Rule</h1>
+            <div style="text-align: center; margin: 40px 0;">
+                <div style="font-size: 1.2em; color: #e74c3c; font-weight: bold;">
+                    "Dependencies should point INWARD toward the business logic"
+                </div>
+            </div>
+            <div class="principles-container">
+                <div class="principle-box">
+                    <h3>✅ Allowed</h3>
+                    <p>Outer layers can depend on inner layers</p>
+                    <div class="dependency-arrow">Framework → Use Cases → Entities</div>
+                </div>
+                <div class="principle-box">
+                    <h3>❌ Forbidden</h3>
+                    <p>Inner layers should never depend on outer layers</p>
+                    <div class="dependency-arrow">Entities ❌→ Database</div>
+                </div>
+            </div>
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <p><strong>Key Principle:</strong> Business rules should not know about implementation details like databases, web frameworks, or external services.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Architecture Layers -->
+        <div class="slide">
+            <h1>The Four Layers</h1>
+            <div class="architecture-diagram">
+                <!-- <div class="circle-diagram"> -->
+                    <img src="images/clean_arch.png" width="1500" height="400">
+                <!-- </div> -->
+            </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <p><strong>Dependencies flow inward:</strong> Each layer can only depend on layers inside it</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Layer Details - Core -->
+        <div class="slide">
+            <h1>Core Layers: Entities & Use Cases</h1>
+            
+            <h2>🎯 Entities (Core Domain)</h2>
+            <ul>
+                <li><strong>Enterprise business rules</strong> that would exist regardless of the application</li>
+                <li>Domain objects with methods that implement business logic</li>
+                <li>Most stable and least likely to change</li>
+                <li>No dependencies on external systems</li>
+            </ul>
+
+            <div class="code-example">
+<pre>
+class User {
+  constructor(email, name) {
+    this.email = email;
+    this.name = name;
+  }
+  
+  isValidEmail() {
+    // Business rule: email validation
+    return this.email.includes("@") && this.email.includes(".");
+  }
+  
+  canPlaceOrder() {
+    // Business rule: user must be verified
+    return this.isVerified();
+  }
+  
+  isVerified() {
+    // Business rule: user verification logic
+    return this.email && this.isValidEmail();
+  }
+}
+</pre>
+            </div>
+
+            <h2>⚙️ Use Cases (Application Layer)</h2>
+            <ul>
+                <li><strong>Application-specific business rules</strong></li>
+                <li>Orchestrate flow of data between entities</li>
+                <li>Define interfaces for external dependencies</li>
+                <li>Independent of UI, database, or external services</li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Layer Details - Outer -->
+        <div class="slide">
+            <h1>Outer Layers: Adapters & Frameworks</h1>
+            
+            <h2>🔄 Interface Adapters</h2>
+            <ul>
+                <li><strong>Controllers:</strong> Handle HTTP requests, convert data formats</li>
+                <li><strong>Presenters:</strong> Format data for UI display</li>
+                <li><strong>Gateways:</strong> Implement interfaces defined by use cases</li>
+                <li><strong>Repositories:</strong> Abstract data access patterns</li>
+            </ul>
+
+            <div class="code-example">
+<pre>
+class UserController {
+  constructor(createUserUseCase) {
+    this.createUserUseCase = createUserUseCase;
+  }
+  
+  async createUser(request) {
+    try {
+      // Convert web request to domain object
+      const user = this.mapToUser(request);
+      
+      // Call use case
+      await this.createUserUseCase.execute(user);
+      
+      // Return web response
+      return { status: 200, message: 'User created successfully' };
+    } catch (error) {
+      return { status: 400, error: error.message };
+    }
+  }
+  
+  mapToUser(request) {
+    return new User(request.email, request.name);
+  }
+}
+</pre>
+            </div>
+
+            <h2>🛠️ Frameworks & Drivers</h2>
+            <ul>
+                <li><strong>Database:</strong> MySQL, PostgreSQL, MongoDB</li>
+                <li><strong>Web Framework:</strong> Spring Boot, Express.js</li>
+                <li><strong>External APIs:</strong> Payment gateways, email services</li>
+                <li><strong>UI:</strong> React, Angular, mobile apps</li>
+            </ul>
+        </div>
+
+        <!-- Slide 7: Key Benefits -->
+        <div class="slide">
+            <h1>Key Benefits</h1>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h4>🧪 Testability</h4>
+                    <p>Test business logic without external dependencies. Mock interfaces for isolated unit testing.</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔧 Maintainability</h4>
+                    <p>Changes to UI or database don't affect business rules. Clear separation of concerns.</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔄 Flexibility</h4>
+                    <p>Swap databases, frameworks, or external services without changing core logic.</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🚀 Technology Independence</h4>
+                    <p>Business rules aren't tied to specific technologies. Easier to adopt new tools.</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>👥 Team Productivity</h4>
+                    <p>Teams can work independently on different layers without stepping on each other.</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>📈 Scalability</h4>
+                    <p>Well-defined boundaries make it easier to scale different parts of the system.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Implementation Patterns -->
+        <div class="slide">
+            <h1>Implementation Patterns</h1>
+            
+            <h2>💉 Dependency Injection</h2>
+            <p>Use interfaces to invert dependencies and allow outer layers to implement contracts defined by inner layers.</p>
+            
+            <div class="code-example">
+<pre>
+// Use Case defines interface
+class UserRepository {
+  save(user) {
+    throw new Error('Method must be implemented');
+  }
+  
+  findById(id) {
+    throw new Error('Method must be implemented');
+  }
+}
+
+// Framework layer implements interface
+class DatabaseUserRepository extends UserRepository {
+  save(user) {
+    // Database-specific implementation
+    console.log('Saving user to database:', user);
+  }
+  
+  findById(id) {
+    // Database-specific implementation
+    return { id, email: 'user@example.com', name: 'John Doe' };
+  }
+}
+</pre>
+            </div>
+
+            <div class="principles-container">
+                <div class="principle-box">
+                    <h3>🏪 Repository Pattern</h3>
+                    <p>Abstract data access behind interfaces defined in the business layer</p>
+                </div>
+                <div class="principle-box">
+                    <h3>📝 Command/Query Separation</h3>
+                    <p>Separate operations that change state from those that query state</p>
+                </div>
+                <div class="principle-box">
+                    <h3>🎭 Adapter Pattern</h3>
+                    <p>Convert interfaces between different layers</p>
+                </div>
+                <div class="principle-box">
+                    <h3>🏭 Factory Pattern</h3>
+                    <p>Create objects without specifying their concrete classes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Best Practices -->
+        <div class="slide">
+            <h1>Best Practices</h1>
+            
+            <h2>✅ Do's</h2>
+            <ul>
+                <li><strong>Define clear interfaces</strong> between layers</li>
+                <li><strong>Keep business logic</strong> in entities and use cases</li>
+                <li><strong>Use dependency injection</strong> to manage dependencies</li>
+                <li><strong>Write tests</strong> for each layer independently</li>
+                <li><strong>Keep external frameworks</strong> in the outer layer</li>
+                <li><strong>Make use cases</strong> framework-agnostic</li>
+            </ul>
+
+            <h2>❌ Don'ts</h2>
+            <ul>
+                <li><strong>Don't let business logic</strong> depend on external systems</li>
+                <li><strong>Don't put database queries</strong> in entities or use cases</li>
+                <li><strong>Don't tightly couple</strong> layers together</li>
+                <li><strong>Don't skip the interface layer</strong> - it's crucial for testing</li>
+                <li><strong>Don't make entities</strong> aware of the presentation layer</li>
+            </ul>
+
+            <div style="background: #d1ecf1; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <p><strong>Remember:</strong> The goal is to protect your business logic from external changes while keeping your code testable and maintainable.</p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Conclusion -->
+        <div class="slide">
+            <h1>Conclusion</h1>
+            
+            <div style="text-align: center; margin: 40px 0;">
+                <div style="font-size: 1.4em; color: #2c3e50; font-weight: bold; margin-bottom: 30px;">
+                    "Clean Architecture is about creating systems that are easy to understand, develop, test, and maintain."
+                </div>
+            </div>
+
+            <div class="principles-container">
+                <div class="principle-box">
+                    <h3>🎯 Focus on Business Value</h3>
+                    <p>Keep your business rules at the center, protected from external changes</p>
+                </div>
+                <div class="principle-box">
+                    <h3>🔄 Embrace Change</h3>
+                    <p>Build systems that can adapt to new requirements and technologies</p>
+                </div>
+                <div class="principle-box">
+                    <h3>🧪 Test Everything</h3>
+                    <p>Clean architecture makes testing easier and more reliable</p>
+                </div>
+                <div class="principle-box">
+                    <h3>📚 Keep Learning</h3>
+                    <p>Clean architecture is a journey, not a destination</p>
+                </div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #fdfdfd 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 15px; margin-top: 40px; text-align: center;">
+                <h3>Start applying Clean Architecture principles in your next project!</h3>
+                <p>Your future self (and your team) will thank you.</p>
+            </div>
+        </div>  
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prev-btn" onclick="changeSlide(-1)">Previous</button>
+        <button class="nav-btn" id="next-btn" onclick="changeSlide(1)">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            
+            document.getElementById('current-slide').textContent = index + 1;
+            document.getElementById('prev-btn').disabled = index === 0;
+            document.getElementById('next-btn').disabled = index === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            showSlide(currentSlide);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
