@@ -182,6 +182,10 @@
             margin-bottom: 15px;
         }
 
+        .benefit-card p {
+            color: #ffffff;
+        }
+
         .principles-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -244,6 +248,16 @@
             border-radius: 20px;
             font-size: 14px;
         }
+        .back-position {
+            position: absolute;
+            top: 20px;
+            right: 1900px;
+            background: #34495e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
 
         .code-example {
             background: #2c3e50;
@@ -296,10 +310,18 @@
     </style>
 </head>
 <body>
+    
     <div class="presentation-container">
+        
         <div class="slide-counter">
             <span id="current-slide">1</span> / <span id="total-slides">10</span>
         </div>
+        <div class="back-position">
+            <a href="index.html">
+                <button class="nav-btn">back</button>
+            </a>
+        </div>
+
 
         <!-- Slide 1: Title -->
         <div class="slide active title-slide">

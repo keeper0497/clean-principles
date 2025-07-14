@@ -280,10 +280,27 @@
         .tech-item:hover {
             transform: scale(1.05);
         }
+        .back-position {
+            position: absolute;
+            top: 20px;
+            right: 1900px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
     </style>
 </head>
 <body>
+    
     <div class="presentation-container">
+        <div class="back-position">
+            <a href="index.html">
+                <button class="nav-btn">back</button>
+            </a>
+        </div>
         <div class="slide-counter">
             <span id="current-slide">1</span> / <span id="total-slides">12</span>
         </div>

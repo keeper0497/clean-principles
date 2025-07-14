@@ -173,6 +173,18 @@
             font-size: 1em;
             z-index: 1000;
         }
+
+        .back-position {
+            position: fixed;
+            top: 30px;
+            right: 2900px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            z-index: 1000;
+        }
         
         .title-slide {
             text-align: center;
@@ -267,6 +279,12 @@
     <div class="presentation-container">
         <div class="slide-counter">
             <span id="currentSlide">1</span> / <span id="totalSlides">9</span>
+        </div>
+
+        <div class="back-position">
+            <a href="index.html">
+                <button class="nav-btn">back</button>
+            </a>
         </div>
         
         <!-- Slide 1: Title -->

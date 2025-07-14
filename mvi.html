@@ -209,6 +209,31 @@
             color: #2c3e50;
         }
 
+         .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #2c3e50;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .back-button:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            color: #667eea;
+        }
+
         .highlight {
             background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
             padding: 2px 8px;
@@ -584,7 +609,9 @@ class UserActivity : AppCompatActivity() {
             </div>
         </div>
     </div>
-
+    <a href="index.html">
+        <button class="back-button" onclick="goBack()">Back</button>
+    </a>
     <div class="slide-counter">
         <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
     </div>
